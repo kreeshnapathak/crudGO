@@ -1,10 +1,9 @@
 package models
 
 type Movie struct {
-	MovieID   int    `json:"movieid"`
+	ID        string `gorm:"primary_key;not null;unique" json:"id"`
 	MovieName string `json:"moviename"`
 }
-
 type JsonResponse struct {
 	Type    string  `json:"type"`
 	Data    []Movie `json:"data"`

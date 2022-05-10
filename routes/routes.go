@@ -17,8 +17,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	r.GET("/movies", controllers.GetMovies)
 	r.GET("/movies/:id", controllers.GetMovie)
 	r.POST("/movies", controllers.CreateMovie)
-	// r.GET("/tasks/:id", controllers.FindTask)
-	// r.PATCH("/tasks/:id", controllers.UpdateTask)
-	// r.DELETE("tasks/:id", controllers.DeleteTask)
+	r.PATCH("/movies/:id", controllers.UpdateMovie)
+	r.DELETE("movies/:id", controllers.DeleteMovie)
 	return r
 }

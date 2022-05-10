@@ -2,9 +2,7 @@ package controllers
 
 import (
 	"crud/models"
-	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -24,20 +22,11 @@ func GetMovies(c *gin.Context) {
 func GetMovie(c *gin.Context) { // Get model if exist
 	var movie models.Movie
 	db := c.MustGet("db").(*gorm.DB)
-	idstr := c.Param("id")
-	id, _ := strconv.Atoi(idstr)
-	fmt.Println(db, "-----------------------", c.Param("idstr"))
-
-	// if err := db.Where("id = ?", c.Param("id")).First(&movie).Error; err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
-	// 	return
-	// }
-	fmt.Println(db.First(&movie, id), "-----------------------", id)
-	if err := db.First(&movie, id); err != nil {
+	id := c.Param("id")
+	if err := db.Where("id = ?", id).First(&movie).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"data": movie})
 }
 
@@ -50,8 +39,40 @@ func CreateMovie(c *gin.Context) {
 		return
 	}
 	// Create task
-	movie := models.Movie{MovieID: input.MovieID, MovieName: input.MovieName}
+	movie := models.Movie{ID: input.ID, MovieName: input.MovieName}
 	db := c.MustGet("db").(*gorm.DB)
 	db.Create(&movie)
+	c.JSON(http.StatusOK, gin.H{"data": movie})
+}
+
+// Update a movie
+func UpdateMovie(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	var movie models.Movie
+	id := c.Param("id")
+	if err := db.Where("id = ?", id).First(&movie).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
+		return
+	}
+	// Validate input
+	var input models.Movie
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	db.Model(&movie).Updates(input)
+	c.JSON(http.StatusOK, gin.H{"data": movie})
+}
+
+// Delete a movie
+func DeleteMovie(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	var movie models.Movie
+	id := c.Param("id")
+	if err := db.Where("id = ?", id).First(&movie).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
+		return
+	}
+	db.Delete(&movie)
 	c.JSON(http.StatusOK, gin.H{"data": movie})
 }
